@@ -6,6 +6,14 @@ import (
 	"gorm.io/datatypes"
 )
 
+type ReleaseStatus string
+
+const (
+	StatusPlanned ReleaseStatus = "planned"
+	StatusSuccess ReleaseStatus = "success"
+	StatusFailed  ReleaseStatus = "failed"
+)
+
 type Release struct {
 	ID        uint           `json:"id"          gorm:"column:id"`
 	Title     string         `json:"title"       gorm:"column:title"`
