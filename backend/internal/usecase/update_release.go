@@ -9,69 +9,86 @@ import (
 )
 
 type ReleaseUpdater struct {
-	releaseRepository repostiry.ReleaseRepository
-	linkRepository    repostiry.LinkRepository
+	db *gorm.DB
 }
 
 func NewReleaseUpdater(db *gorm.DB) ReleaseUpdater {
 	return ReleaseUpdater{
-		releaseRepository: repostiry.NewReleaseRepository(db),
-		linkRepository:    repostiry.NewLinkRepository(db),
+		db: db,
 	}
 }
 
 func (u *ReleaseUpdater) UpdateRelease(ID uint, request ReleaseCMD) (*models.Release, error) {
-	release, err := u.releaseRepository.GetById(ID)
-	if err != nil {
-		return nil, fmt.Errorf("release not found")
-	}
+	var updatedRelease *models.Release
 
-	release.Title = request.Title
-	release.Date = request.Date
-	release.Status = request.Status
-	release.Notes = request.Notes
-	release.DutyUsers = request.DutyUsers
+	err := u.db.Transaction(func(tx *gorm.DB) error {
+		releaseRepository := repostiry.NewReleaseRepository(tx)
+		linkRepository := repostiry.NewLinkRepository(tx)
 
-	if err := u.releaseRepository.Update(release); err != nil {
-		return nil, fmt.Errorf("failed to update release")
-	}
+		release, err := releaseRepository.GetById(ID)
+		if err != nil {
+			return fmt.Errorf("release not found")
+		}
 
-	newLinks := make([]*models.Link, 0)
-	existing := map[uint]*models.Link{}
-	for _, l := range release.Links {
-		existing[l.ID] = l
-	}
-	seen := map[uint]bool{}
-	for _, rl := range request.Links {
-		if rl.ID == 0 {
-			newLinks = append(newLinks, &models.Link{ReleaseID: release.ID, Name: rl.Name, URL: rl.URL})
-		} else {
-			if l, ok := existing[rl.ID]; ok {
-				l.Name = rl.Name
-				l.URL = rl.URL
-				if err := u.linkRepository.Update(l); err != nil {
-					return nil, fmt.Errorf("failed to update link")
+		release.Title = request.Title
+		release.Date = request.Date
+		release.Status = request.Status
+		release.Notes = request.Notes
+		release.DutyUsers = request.DutyUsers
+
+		if err := releaseRepository.Update(release); err != nil {
+			return fmt.Errorf("failed to update release")
+		}
+
+		newLinks := make([]*models.Link, 0)
+		existing := map[uint]*models.Link{}
+		for _, l := range release.Links {
+			existing[l.ID] = l
+		}
+		seen := map[uint]bool{}
+		for _, rl := range request.Links {
+			if rl.ID == 0 {
+				newLinks = append(newLinks, &models.Link{ReleaseID: release.ID, Name: rl.Name, URL: rl.URL})
+			} else {
+				if l, ok := existing[rl.ID]; ok {
+					l.Name = rl.Name
+					l.URL = rl.URL
+					if err := linkRepository.Update(l); err != nil {
+						return fmt.Errorf("failed to update link")
+					}
+					seen[rl.ID] = true
 				}
-				seen[rl.ID] = true
 			}
 		}
-	}
-	if len(newLinks) > 0 {
-		if err := u.linkRepository.Add(newLinks); err != nil {
-			return nil, err
+		if len(newLinks) > 0 {
+			if err := linkRepository.Add(newLinks); err != nil {
+				return fmt.Errorf("failed to add new links")
+			}
 		}
-	}
-	deletedLinks := make([]*models.Link, 0)
-	for id, l := range existing {
-		if !seen[id] {
-			deletedLinks = append(deletedLinks, l)
+		deletedLinks := make([]*models.Link, 0)
+		for id, l := range existing {
+			if !seen[id] {
+				deletedLinks = append(deletedLinks, l)
+			}
 		}
-	}
-	if len(deletedLinks) > 0 {
-		if err := u.linkRepository.Delete(deletedLinks); err != nil {
-			return nil, fmt.Errorf("failed to delete links")
+		if len(deletedLinks) > 0 {
+			if err := linkRepository.Delete(deletedLinks); err != nil {
+				return fmt.Errorf("failed to delete links")
+			}
 		}
+
+		release, err = releaseRepository.GetById(ID)
+		if err != nil {
+			return fmt.Errorf("release not found")
+		}
+
+		updatedRelease = release
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
 	}
 
-	return release, nil
+	return updatedRelease, nil
 }

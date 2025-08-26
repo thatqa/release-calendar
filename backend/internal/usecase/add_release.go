@@ -9,40 +9,51 @@ import (
 )
 
 type ReleaseCreator struct {
-	releaseRepository repostiry.ReleaseRepository
-	linkRepository    repostiry.LinkRepository
+	db *gorm.DB
 }
 
 func NewReleaseCreator(db *gorm.DB) ReleaseCreator {
 	return ReleaseCreator{
-		releaseRepository: repostiry.NewReleaseRepository(db),
-		linkRepository:    repostiry.NewLinkRepository(db),
+		db: db,
 	}
 }
 
 func (u *ReleaseCreator) AddRelease(request ReleaseCMD) (*models.Release, error) {
-	release := &models.Release{
-		Title:     request.Title,
-		Date:      request.Date,
-		Status:    request.Status,
-		Notes:     request.Notes,
-		DutyUsers: request.DutyUsers,
-	}
-	if err := u.releaseRepository.Add(release); err != nil {
-		return nil, fmt.Errorf("failed to add release")
+	var createdRelease *models.Release
+
+	err := u.db.Transaction(func(tx *gorm.DB) error {
+		releaseRepository := repostiry.NewReleaseRepository(tx)
+		linkRepository := repostiry.NewLinkRepository(tx)
+
+		release := &models.Release{
+			Title:     request.Title,
+			Date:      request.Date,
+			Status:    request.Status,
+			Notes:     request.Notes,
+			DutyUsers: request.DutyUsers,
+		}
+		if err := releaseRepository.Add(release); err != nil {
+			return fmt.Errorf("failed to add release")
+		}
+
+		linksCount := len(request.Links)
+		if linksCount > 0 {
+			links := make([]*models.Link, linksCount)
+			for i, link := range request.Links {
+				links[i] = &models.Link{ReleaseID: release.ID, Name: link.Name, URL: link.URL}
+			}
+			release.Links = links
+			if err := linkRepository.Add(release.Links); err != nil {
+				return fmt.Errorf("failed to add links")
+			}
+		}
+		createdRelease = release
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
 	}
 
-	linksCount := len(request.Links)
-	if linksCount > 0 {
-		links := make([]*models.Link, linksCount)
-		for i, link := range request.Links {
-			links[i] = &models.Link{ReleaseID: release.ID, Name: link.Name, URL: link.URL}
-		}
-		release.Links = links
-		if err := u.linkRepository.Add(release.Links); err != nil {
-			return nil, fmt.Errorf("failed to add links")
-		}
-	}
-
-	return release, nil
+	return createdRelease, nil
 }
