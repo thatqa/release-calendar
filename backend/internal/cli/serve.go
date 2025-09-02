@@ -5,10 +5,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/joho/godotenv"
-	"github.com/spf13/cobra"
 	"release-calendar/backend/internal/server"
 	"release-calendar/backend/internal/store"
+
+	"github.com/joho/godotenv"
+	"github.com/spf13/cobra"
 )
 
 var serveCmd = &cobra.Command{

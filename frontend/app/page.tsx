@@ -7,6 +7,7 @@ import { api } from "../lib/api";
 import { Button } from "../components/ui/button";
 import { ReleaseForm, ReleasePayload } from "../components/ReleaseForm";
 import { Comments } from "../components/Comments";
+import {isoToLocalInput, toLocalInput, toLocalYMD} from "../lib/date";
 
 type Link = { id:number; name:string; url:string };
 type Release = {
@@ -22,7 +23,7 @@ export default function HomePage() {
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [dutyFilter, setDutyFilter] = useState<string>("");
 
-  const dayParam = useMemo(()=> selectedDay.toISOString().slice(0,10), [selectedDay]);
+  const dayParam = useMemo(()=> toLocalYMD(selectedDay), [selectedDay]);
 
   const load = async ()=> {
     const data = await api.listReleases({ date: dayParam, status: statusFilter||undefined, duty: dutyFilter||undefined}) as Release[];
@@ -102,7 +103,7 @@ export default function HomePage() {
           <div className="card">
             <div className="text-lg font-semibold mb-3">Create release</div>
             <ReleaseForm
-              initial={{ date: selectedDay.toISOString().slice(0,16) }}
+                initial={{ date: toLocalInput(selectedDay) }}
               onSubmit={createRelease}
               onCancel={()=>setMode("view")}
             />
@@ -144,7 +145,7 @@ export default function HomePage() {
             <ReleaseForm
               initial={{
                 title: active.title,
-                date: active.date.slice(0,16),
+                date: isoToLocalInput(active.date),
                 status: active.status,
                 notes: active.notes,
                 dutyUsers: active.dutyUsers,
