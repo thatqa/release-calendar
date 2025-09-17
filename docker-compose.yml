@@ -28,6 +28,8 @@ services:
       TZ: ${TZ}
     depends_on:
       - db
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
     expose:
       - "${BACKEND_PORT}"
 

@@ -18,6 +18,7 @@ func Router(db *gorm.DB) *gin.Engine {
 
 	api := r.Group("/api")
 	{
+		api.GET("/release-days", func(c *gin.Context) { handlers.NewGetReleaseDays(db).Handle(c) })
 		releases := api.Group("/releases")
 		{
 			releases.GET("", func(c *gin.Context) { handlers.NewListRelease(db).Handle(c) })
