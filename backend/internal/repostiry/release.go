@@ -13,6 +13,7 @@ type ReleaseRepository interface {
 	GetByDateAndStatus(date string, status string) ([]*models.Release, error)
 	Update(release *models.Release) error
 	DeleteById(ID uint) error
+	GetStatusesByRange(from, to time.Time) (map[string][]string, error)
 }
 
 type releaseRepository struct {
@@ -74,4 +75,39 @@ func (r *releaseRepository) GetByDateAndStatus(date string, status string) ([]*m
 
 func (r *releaseRepository) DeleteById(ID uint) error {
 	return r.db.Delete(&models.Release{ID: ID}).Error
+}
+
+func (r *releaseRepository) GetStatusesByRange(from, to time.Time) (map[string][]string, error) {
+	type result struct {
+		Day    time.Time
+		Status string
+	}
+
+	var rows []result
+	err := r.db.
+		Model(&models.Release{}).
+		Select("DATE(`date`) as day, status").
+		Where("date >= ? AND date < ?", from, to).
+		Group("day, status").
+		Order("day ASC").
+		Scan(&rows).Error
+	if err != nil {
+		return nil, err
+	}
+
+	res := make(map[string][]string)
+	seen := make(map[string]map[string]bool)
+
+	for _, row := range rows {
+		key := row.Day.Format("2006-01-02")
+		if seen[key] == nil {
+			seen[key] = map[string]bool{}
+		}
+		if !seen[key][row.Status] {
+			res[key] = append(res[key], row.Status)
+			seen[key][row.Status] = true
+		}
+	}
+
+	return res, nil
 }

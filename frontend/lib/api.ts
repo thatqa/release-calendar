@@ -58,6 +58,9 @@ export const api = {
         handle(fetch(`${API_BASE}/releases/${id}/comments/${commentId}`, {
             method: "DELETE",
         })),
+
+    releaseDays: (from: string, to: string) =>
+        handle(fetch(`${API_BASE}/release-days?from=${from}&to=${to}`, { cache: "no-store" })),
 };
 
 function qs(params: Record<string, any>) {
