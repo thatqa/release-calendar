@@ -234,15 +234,15 @@ export const api = {
 
     getRelease: (id: number) => delay(releases.find(r => r.id === id) || null),
 
-    createRelease: () => Promise.reject("Demo only"),
-    updateRelease: () => Promise.reject("Demo only"),
-    deleteRelease: () => Promise.reject("Demo only"),
+    createRelease: (_payload: any) => Promise.reject("Demo only"),
+    updateRelease: (_id: number, _payload: any) => Promise.reject("Demo only"),
+    deleteRelease: (_id: number) => Promise.reject("Demo only"),
 
     listComments: (id: number) => delay(comments[id] || []),
 
-    addComment: () => Promise.reject("Demo only"),
-    updateComment: () => Promise.reject("Demo only"),
-    deleteComment: () => Promise.reject("Demo only"),
+    addComment: (_releaseId: number, _payload: any) => Promise.reject("Demo only"),
+    updateComment: (_releaseId: number, _commentId: number, _payload: any) => Promise.reject("Demo only"),
+    deleteComment: (_releaseId: number, _commentId: number) => Promise.reject("Demo only"),
 
     // returns Markers: { "YYYY-MM-DD": ["failed","success","planned"] }
     releaseDays: (from: string, to: string) => {
