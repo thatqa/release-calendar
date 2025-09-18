@@ -25,7 +25,7 @@ It provides a **calendar view**, detailed **release pages**, **comments**, **lin
 ## 🏗️ Architecture
 ```mermaid
 flowchart LR
-  A[Frontend (Next.js)] -->|HTTP/Ingress| B[Backend (Go + Gin + GORM)]
+  A[Frontend (Next.js)] -->|HTTP / Ingress| B[Backend (Go + Gin + GORM)]
   B <--> C[(MariaDB/MySQL)]
   A -.->|/api proxy| B
 ```
@@ -47,3 +47,25 @@ Add the chart repository:
 helm repo add thatqa https://thatqa.github.io/helm
 helm repo update
 helm search repo thatqa/release-calendar
+```
+
+Install:
+
+```bash
+helm install rc thatqa/release-calendar \
+  --version 0.1.4 \
+  --set backend.env.DB_HOST=mariadb.svc.cluster.local \
+  --set backend.env.DB_PORT=3306 \
+  --set backend.env.DB_NAME=release_calendar \
+  --set backend.env.DB_USER=release_user \
+  --set backend.env.DB_PASSWORD=secret
+```
+
+Enable AI summary (optional):
+```bash
+--set backend.env.AI_API_KEY=sk-your-key
+--set backend.env.AI_TEMPERATURE=temp
+--set backend.env.AI_MODEL=model
+--set backend.env.AI_MAX_TOKENS=max_tokens
+--set backend.env.AI_URL=url
+```
