@@ -23,12 +23,11 @@ It provides a **calendar view**, detailed **release pages**, **comments**, **lin
 ---
 
 ## 🏗️ Architecture
-```mermaid
-flowchart LR
-  A[Frontend (Next.js)] -->|HTTP/Ingress| B[Backend (Go + Gin + GORM)]
-  B <--> C[(MariaDB/MySQL)]
-  A -.->|/api proxy| B
-```
+- **Frontend**: Next.js 14 (App Router), shadcn/ui
+- **Backend**: Go (Gin + GORM)
+- **Database**: MariaDB/MySQL
+- **Migrations**: Goose + SQL files (embedded in backend)
+- **API Proxy**: frontend → `/api/*` → backend
 
 ---
 
@@ -79,9 +78,7 @@ kubectl get ingress
 - Configure your Ingress host and TLS in chart values if needed.
 - Ensure your DB is reachable from the cluster and the schema is migrated (use your preferred migration flow or the image’s migrate command if you run a Job).
 
----
-
-Option B — Docker Compose
+### Option A — Helm (Kubernetes)
 
 > 🐳 The Docker Compose setup includes a MariaDB database out of the box.    
 > ⚠️ There are no health checks configured. To avoid race conditions, start services sequentially in the following order:
@@ -159,3 +156,62 @@ docker compose up -d backend frontend
 ```
 
 Open → http://localhost:3000
+
+## ⚙️ Configuration
+
+### Backend Environment
+| Variable         | Default                                            | Description                  |
+|------------------|----------------------------------------------------|------------------------------|
+| `DB_HOST`        | —                                                  | Database host                |
+| `DB_PORT`        | 3306                                               | Database port                |
+| `DB_NAME`        | —                                                  | Database name                |
+| `DB_USER`        | —                                                  | Database user                |
+| `DB_PASSWORD`    | —                                                  | Database password            |
+| `DB_PARAMS`      | charset=utf8mb4&parseTime=true&loc=UTC             | DSN extra params             |
+| `AI_TEMPERATURE` | empty                                              | Optional: enable AI summaries |
+| `AI_API_KEY `    | empty                                              | Optional: enable AI summaries |
+| `AI_MODEL `      | empty                                              | Optional: enable AI summaries |
+| `AI_MAX_TOKENS ` | empty                                              | Optional: enable AI summaries |
+| `AI_URL `        | empty                                              | Optional: enable AI summaries |
+
+### Frontend Environment
+| Variable               | Default | Description                          |
+|------------------------|---------|--------------------------------------|
+| `NEXT_PUBLIC_API_BASE` | /api    | API base path proxied by the frontend |
+
+---
+
+## 🔌 API Quick Reference
+
+- `GET /api/releases` — list releases (supports filters: `date=YYYY-MM-DD`, `status`, `duty`)
+- `POST /api/releases` — create a release
+- `GET /api/releases/:id` — get release by id
+- `PUT /api/releases/:id` — update a release
+- `DELETE /api/releases/:id` — delete a release
+- `GET /api/releases/:id/comments` — list comments
+- `POST /api/releases/:id/comments` — add comment (`author`, `message`)
+- `PUT /api/releases/:id/comments/:commentId` — update comment
+- `DELETE /api/releases/:id/comments/:commentId` — delete comment
+- `GET /api/releases/:id/summary` — AI summary (if `OPENAI_API_KEY` and other env present)
+- `GET /api/release-days?from=YYYY-MM-DD&to=YYYY-MM-DD` — calendar status markers (per-day statuses in range)
+
+### Examples:
+
+```bash
+# List releases for a day
+curl -s "http://localhost:8080/api/releases?date=2025-09-18" | jq
+
+# Create a release
+curl -s -X POST http://localhost:8080/api/releases \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title":"Payments v3 rollout",
+    "date":"2025-09-18T10:00:00",
+    "status":"planned",
+    "notes":"Blue/green deploy",
+    "dutyUsers":["alice","bob"],
+    "links":[{"name":"pipeline","url":"https://ci/p/123"}]
+  }' | jq
+
+# AI summary
+curl -s "http://localhost:8080/api/releases/1/summary" | jq
