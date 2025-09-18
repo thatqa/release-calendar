@@ -1,6 +1,6 @@
 # 📅 Release Calendar
 
-👉 **Live Demo**: [https://release-calendar-demo.vercel.app/](https://release-calendar-demo.vercel.app/)
+👉 **Live Demo**: [https://release-calendar-demo.vercel.app](https://release-calendar-demo.vercel.app/)
 
 ![Release Calendar UI](https://thatqa.com/release-calendar-v2.png)
 
