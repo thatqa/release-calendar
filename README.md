@@ -1,5 +1,7 @@
 # 📅 Release Calendar
 
+👉 **Live Demo**: [https://release-calendar-demo.vercel.app/](https://release-calendar-demo.vercel.app/)
+
 ![Release Calendar UI](https://thatqa.com/release-calendar-v2.png)
 
 Release Calendar is a simple yet powerful web application for managing software releases.  
