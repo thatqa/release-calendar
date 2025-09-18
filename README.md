@@ -252,3 +252,7 @@ Open an issue or submit a PR to improve Release Calendar.
 
 > 🧪 This tool was created as part of the experiment:  
 > [Vibecoding Experiment](https://thatqa.com/en/post/vibecoding-experiment)
+
+## 📄 License
+
+This project is licensed under the [MIT License](./LICENSE).
