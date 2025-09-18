@@ -1,32 +1,31 @@
-# Release Calendar
+# 📅 Release Calendar
 
-Полностью готовое приложение по ТЗ:
-- **Frontend**: Next.js 14 (App Router) + Tailwind + лёгкие компоненты в стиле shadcn/ui.
-- **Backend**: Go (Gin) + GORM + goose миграции (встроены через `go:embed`).
-- **DB**: MariaDB.
-- **Infra**: Nginx как reverse-proxy, всё упаковано в Docker + docker-compose.
+![Release Calendar UI](https://thatqa.com/release-calendar-v2.png)
 
-## Запуск
-```bash
-cp .env.example .env
-docker-compose up --build
-```
-Открой: `http://localhost:8088`
+Release Calendar is a simple yet powerful web application for managing software releases.  
+It provides a **calendar view**, detailed **release pages**, **comments**, **links**, and an **AI-powered summary** of discussions and notes.
 
-## API
-- `GET    /api/releases?date=YYYY-MM-DD&status=&duty=`
-- `POST   /api/releases` (body: {title, date (ISO), status, notes, dutyUsers[], links[]})
-- `GET    /api/releases/:id`
-- `PUT    /api/releases/:id` (обновляет и синхронизирует links)
-- `DELETE /api/releases/:id`
+---
 
-Комментарии:
-- `GET    /api/releases/:id/comments`
-- `POST   /api/releases/:id/comments` ({author, message})
-- `PUT    /api/releases/:id/comments/:commentId`
-- `DELETE /api/releases/:id/comments/:commentId`
+## ✨ Features
 
-## Заметки
-- Поле dutyUsers хранится в JSON; фильтрация по duty происходит на приложении при листинге.
-- Links управляются только через POST/PUT release, как ты просил.
-- UI: календарь слева, справа карточка релиза + CRUD.
+- 📌 Calendar view with daily status markers:
+    - 🟥 **Failed**
+    - 🟩 **Success**
+    - 🟦 **Planned**
+- 🔍 Filter releases by status or duty user
+- 📝 Notes, duty users, and editable external links per release
+- 💬 Comment system (create, edit, delete)
+- 🤖 AI summarizer (optional, requires `OPENAI_API_KEY`)
+- ⚡ REST API built with **Go (Gin + GORM)**
+- 🎨 Frontend built with **Next.js 14 (App Router)**
+
+---
+
+## 🏗️ Architecture
+```mermaid
+flowchart LR
+  A[Frontend (Next.js)] <-- HTTP/Ingress --> B[Backend (Go + Gin + GORM)]
+  B <--> C[(MariaDB/MySQL)]
+  A -.->|/api proxy| B
+
