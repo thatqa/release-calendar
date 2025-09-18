@@ -86,6 +86,7 @@ kubectl get ingress
 > 3. Backend
 > 4. Frontend
 
+cp `.env.example` to `.env` and adjust variables as needed.
 Example docker-compose.yml:
 ```bash
 version: "3.8"
@@ -96,53 +97,72 @@ services:
     restart: always
     environment:
       MARIADB_ROOT_PASSWORD: root
-      MARIADB_DATABASE: release_calendar
-      MARIADB_USER: release_user
-      MARIADB_PASSWORD: secret
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASS}
+      TZ: ${TZ}
+    volumes:
+      - db_data:/var/lib/mysql
     ports:
-      - "3306:3306"
-
-  migrate:
-    build: ./backend
-    command: ["migrate"]
-    environment:
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_NAME: release_calendar
-      DB_USER: release_user
-      DB_PASSWORD: secret
-      DB_PARAMS: "charset=utf8mb4&parseTime=true&loc=UTC"
-    depends_on:
-      - db
+      - "${DB_PORT}:3306"
 
   backend:
     build: ./backend
-    command: ["serve"]
+    command: [ "serve" ]
     environment:
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_NAME: release_calendar
-      DB_USER: release_user
-      DB_PASSWORD: secret
-      DB_PARAMS: "charset=utf8mb4&parseTime=true&loc=UTC"
-      # AI_API_KEY: "sk-your-key"   # optional
-      # AI_TEMPERATURE: "temp"   # optional
-      # AI_MODEL: "model"   # optional
-      # AI_MAX_TOKENS: "max_tokens"   # optional
-      # AI_URL: "url"   # optional
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+      BACKEND_PORT: ${BACKEND_PORT}
+      AI_API_KEY: ${AI_API_KEY}
+      AI_TEMPERATURE: ${AI_TEMPERATURE}
+      AI_MODEL: ${AI_MODEL}
+      AI_MAX_TOKENS: ${AI_MAX_TOKENS}
+      AI_URL: ${AI_URL}
+      TZ: ${TZ}
+    depends_on:
+      - db
     ports:
-      - "8080:8080"
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    expose:
+      - "${BACKEND_PORT}"
+
+  migrate:
+    build: ./backend
+    command: [ "migrate" ]
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+      BACKEND_PORT: ${BACKEND_PORT}
+      TZ: ${TZ}
     depends_on:
       - db
 
   frontend:
     build: ./frontend
     environment:
-      NEXT_PUBLIC_API_BASE: /api
-    ports:
-      - "3000:3000"
+      NEXT_PUBLIC_API_BASE: ${NEXT_PUBLIC_API_BASE}
+      TZ: ${TZ}
+    expose:
+      - "3000"
     depends_on:
       - backend
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "${NGINX_PORT}:80"
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  db_data:
 ```
 
 Start sequentially:
