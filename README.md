@@ -179,25 +179,30 @@ Open → http://localhost:3000
 ## ⚙️ Configuration
 
 ### Backend Environment
-| Variable         | Default                                            | Description                  |
-|------------------|----------------------------------------------------|------------------------------|
-| `DB_HOST`        | —                                                  | Database host                |
-| `DB_PORT`        | 3306                                               | Database port                |
-| `DB_NAME`        | —                                                  | Database name                |
-| `DB_USER`        | —                                                  | Database user                |
-| `DB_PASSWORD`    | —                                                  | Database password            |
-| `DB_PARAMS`      | charset=utf8mb4&parseTime=true&loc=UTC             | DSN extra params             |
-| `AI_TEMPERATURE` | empty                                              | Optional: enable AI summaries |
-| `AI_API_KEY `    | empty                                              | Optional: enable AI summaries |
-| `AI_MODEL `      | empty                                              | Optional: enable AI summaries |
-| `AI_MAX_TOKENS ` | empty                                              | Optional: enable AI summaries |
-| `AI_URL `        | empty                                              | Optional: enable AI summaries |
+## ⚙️ Configuration
+
+### Backend Environment
+
+| Variable          | Default | Description                                      |
+|-------------------|---------|--------------------------------------------------|
+| `DB_HOST`         | —       | Database host                                    |
+| `DB_PORT`         | `3306`  | Database port                                    |
+| `DB_NAME`         | —       | Database name                                    |
+| `DB_USER`         | —       | Database user                                    |
+| `DB_PASS`         | —       | Database password                                |
+| `BACKEND_PORT`    | `8080`  | HTTP port exposed by the backend container       |
+| `AI_API_KEY`      | —       | **Optional.** API key to enable AI summaries     |
+| `AI_TEMPERATURE`  | —       | **Optional.** AI response creativity             |
+| `AI_MODEL`        | —       | **Optional.** Model name (e.g. `gpt-4o-mini`)    |
+| `AI_MAX_TOKENS`   | —       | **Optional.** Max tokens for AI response         |
+| `AI_URL`          | —       | **Optional.** Provider endpoint for AI requests  |
+| `TZ`              | `UTC`   | Container timezone (affects logs/time handling)  |
+
 
 ### Frontend Environment
 | Variable               | Default | Description                          |
 |------------------------|---------|--------------------------------------|
 | `NEXT_PUBLIC_API_BASE` | /api    | API base path proxied by the frontend |
-
 ---
 
 ## 🔌 API Quick Reference
