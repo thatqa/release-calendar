@@ -77,7 +77,7 @@ kubectl get ingress
 - Configure your Ingress host and TLS in chart values if needed.
 - Ensure your DB is reachable from the cluster and the schema is migrated (use your preferred migration flow or the image’s migrate command if you run a Job).
 
-### Option A — Helm (Kubernetes)
+### Option B — Docker Compose
 
 > 🐳 The Docker Compose setup includes a MariaDB database out of the box.    
 > ⚠️ There are no health checks configured. To avoid race conditions, start services sequentially in the following order:
