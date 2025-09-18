@@ -27,7 +27,6 @@ It provides a **calendar view**, detailed **release pages**, **comments**, **lin
 - **Backend**: Go (Gin + GORM)
 - **Database**: MariaDB/MySQL
 - **Migrations**: Goose + SQL files (embedded in backend)
-- **API Proxy**: frontend → `/api/*` → backend
 
 ---
 
