@@ -17,7 +17,7 @@ services:
 
   backend:
     build: ./backend
-    command: ["serve"]
+    command: [ "serve" ]
     environment:
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
@@ -25,6 +25,11 @@ services:
       DB_PASS: ${DB_PASS}
       DB_NAME: ${DB_NAME}
       BACKEND_PORT: ${BACKEND_PORT}
+      AI_API_KEY: ${AI_API_KEY}
+      AI_TEMPERATURE: ${AI_TEMPERATURE}
+      AI_MODEL: ${AI_MODEL}
+      AI_MAX_TOKENS: ${AI_MAX_TOKENS}
+      AI_URL: ${AI_URL}
       TZ: ${TZ}
     depends_on:
       - db
@@ -35,7 +40,7 @@ services:
 
   migrate:
     build: ./backend
-    command: ["migrate"]
+    command: [ "migrate" ]
     environment:
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}

@@ -61,6 +61,9 @@ export const api = {
 
     releaseDays: (from: string, to: string) =>
         handle(fetch(`${API_BASE}/release-days?from=${from}&to=${to}`, { cache: "no-store" })),
+
+    getSummary: (id: number) =>
+        handle(fetch(`${API_BASE}/releases/${id}/summary`, { cache: "no-store" })),
 };
 
 function qs(params: Record<string, any>) {

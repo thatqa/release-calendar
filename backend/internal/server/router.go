@@ -31,6 +31,8 @@ func Router(db *gorm.DB) *gin.Engine {
 			releases.POST(":id/comments", func(c *gin.Context) { handlers.NewAddComment(db).Handle(c) })
 			releases.PUT(":id/comments/:commentId", func(c *gin.Context) { handlers.NewUpdateComment(db).Handle(c) })
 			releases.DELETE(":id/comments/:commentId", func(c *gin.Context) { handlers.NewDeleteComment(db).Handle(c) })
+
+			releases.GET(":id/summary", func(c *gin.Context) { handlers.NewGetSummary(db).Handle(c) })
 		}
 	}
 
