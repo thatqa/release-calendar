@@ -25,7 +25,25 @@ It provides a **calendar view**, detailed **release pages**, **comments**, **lin
 ## 🏗️ Architecture
 ```mermaid
 flowchart LR
-  A[Frontend (Next.js)] <-- HTTP/Ingress --> B[Backend (Go + Gin + GORM)]
+  A[Frontend (Next.js)] -->|HTTP/Ingress| B[Backend (Go + Gin + GORM)]
   B <--> C[(MariaDB/MySQL)]
   A -.->|/api proxy| B
+```
 
+---
+
+## 🚀 Installation
+
+You can run Release Calendar either via **Helm (Kubernetes)** or **Docker Compose**.
+
+### Option A — Helm (Kubernetes)
+
+> ⚠️ The Helm chart **does not include a database**.  
+> You must use your own MariaDB/MySQL instance and provide its connection settings.
+
+Add the chart repository:
+
+```bash
+helm repo add thatqa https://thatqa.github.io/helm
+helm repo update
+helm search repo thatqa/release-calendar
